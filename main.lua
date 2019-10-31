@@ -9,18 +9,65 @@ local Grid = {}
 
 local Tetros = {}
 
-local tetrosIndex = 1
-local tetrosRotation = 1
+local currentTetros = {}
+currentTetros.shapeId = 1
+currentTetros.rotation = 1
+currentTetros.posX = 0
+currentTetros.posY = 0
 
+function love.load()
+  
+  screenWidth = love.graphics.getWidth()
+  screenHeight = love.graphics.getHeight()
+
+  initGrid()
+  initTetros()
+
+  currentTetros.shapeId = math.random( 1, #Tetros )
+  currentTetros.rotation = math.random( 1, #Tetros[currentTetros.shapeId])
+  currentTetros.posX = Grid.posX + (((Grid.column * Grid.cellSize) / 2) - (math.floor((#Tetros[currentTetros.shapeId][currentTetros.rotation][1]) / 2) * Grid.cellSize))
+  print(currentTetros.posX)
+  currentTetros.posY = 0
+  
+end
+
+function love.update(dt)
+
+end
+
+function love.draw()
+    drawTetros()
+    drawGrid()
+
+end
+
+function love.keypressed(key)
+  if key == "space" then
+    currentTetros.rotation = currentTetros.rotation + 1
+
+    if currentTetros.rotation > #Tetros[currentTetros.shapeId] then
+        currentTetros.rotation = 1
+    end
+  end
+
+  if key == "return" then
+    currentTetros.rotation = 1
+    currentTetros.shapeId = currentTetros.shapeId + 1
+
+    if currentTetros.shapeId > #Tetros then
+        currentTetros.shapeId = 1
+    end
+  end
+  
+end
 
 function initGrid()
     Grid.line = 20
     Grid.column = 10
-    Grid.cellSize = screenWidth / Grid.line
-    Grid.posX = (screenWidth / 2) - ((Grid.cellSize * Grid.column) / 2)
-    print(posX)
-    
+    Grid.cellSize = screenHeight / Grid.line
+    Grid.posX = (screenWidth / 2) - ((Grid.cellSize * Grid.column) / 2)    
     Grid.cells = {}
+
     for line = 1, Grid.line, 1
     do
         Grid.cells[line] = {}
@@ -169,55 +216,19 @@ function initTetros()
     }
 end
 
-function love.load()
-  
-  screenWidth = love.graphics.getWidth()
-  screenHeight = love.graphics.getHeight()
+function drawTetros()
+    local shape = Tetros[currentTetros.shapeId][currentTetros.rotation]
 
-  initGrid()
-  initTetros()
-  
-end
-
-function love.update(dt)
-
-end
-
-function love.draw()
-    local shape = Tetros[tetrosIndex][tetrosRotation]
     for line = 1, #shape, 1
     do
         for column =  1, #shape[line], 1
         do
-            local x = line * 32
-            local y = column * 32
+            local x = currentTetros.posX + ((column - 1) * Grid.cellSize)
+            local y = currentTetros.posY + ((line - 1) * Grid.cellSize)
+
             if shape[line][column] == 1 then
-                love.graphics.rectangle("fill", x, y, 32, 32)
-            else 
-                love.graphics.rectangle("line", x, y, 32, 32)
+                love.graphics.rectangle("fill", x, y, Grid.cellSize, Grid.cellSize)
             end
         end
     end
-    
-    drawGrid()
-
 end
-
-function love.keypressed(key)
-  if key == "space" then
-    tetrosRotation = tetrosRotation + 1
-    if tetrosRotation > #Tetros[tetrosIndex] then
-        tetrosRotation = 1
-    end
-  end
-
-  if key == "return" then
-    tetrosRotation = 1
-    tetrosIndex = tetrosIndex + 1
-    if tetrosIndex > #Tetros then
-        tetrosIndex = 1
-    end
-  end
-  
-end
-  
