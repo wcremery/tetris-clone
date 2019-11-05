@@ -14,6 +14,8 @@ currentTetros.shapeId = 1
 currentTetros.rotation = 1
 currentTetros.posX = 0
 currentTetros.posY = 0
+currentTetros.vx = 0
+currentTetros.vy = 0
 
 function love.load()
   
@@ -32,13 +34,16 @@ function love.load()
 end
 
 function love.update(dt)
-
+    if currentTetros.posY <= ((Grid.line * Grid.cellSize) - (Grid.cellSize * math.floor( #Tetros[currentTetros.shapeId][currentTetros.rotation]))) then
+        currentTetros.vy = currentTetros.vy  + dt * 2
+        currentTetros.posY = math.floor( currentTetros.vy ) * Grid.cellSize
+    end
+    print(currentTetros.posY)
 end
 
 function love.draw()
     drawTetros()
     drawGrid()
-
 end
 
 function love.keypressed(key)
@@ -57,6 +62,14 @@ function love.keypressed(key)
     if currentTetros.shapeId > #Tetros then
         currentTetros.shapeId = 1
     end
+  end
+
+  if key == "left" and (currentTetros.posX > Grid.posX) then
+    currentTetros.posX = currentTetros.posX - Grid.cellSize
+  end
+
+  if key == "right" and (currentTetros.posX < Grid.posX + (Grid.column * Grid.cellSize) - (#Tetros[currentTetros.shapeId][currentTetros.rotation][1] * Grid.cellSize)) then
+    currentTetros.posX = currentTetros.posX + Grid.cellSize
   end
   
 end
